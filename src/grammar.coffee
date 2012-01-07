@@ -98,6 +98,7 @@ grammar =
     o 'Switch'
     o 'Class'
     o 'Throw'
+    o 'Load'
   ]
 
   # An indented block of expressions. Note that the [Rewriter](rewriter.html)
@@ -389,6 +390,11 @@ grammar =
     o 'THROW Expression',                       -> new Throw $2
   ]
 
+  # Load a rzr module
+  Load: [
+    o 'LOAD Expression',                       -> new Load $2
+  ]
+
   # Parenthetical expressions. Note that the **Parenthetical** is a **Value**,
   # not an **Expression**, so if you need to use an expression in a place
   # where only values are accepted, wrapping it in parentheses will always do
@@ -567,7 +573,7 @@ operators = [
   ['left',      'COMPARE']
   ['left',      'LOGIC']
   ['nonassoc',  'INDENT', 'OUTDENT']
-  ['right',     '=', ':', 'COMPOUND_ASSIGN', 'RETURN', 'THROW', 'EXTENDS']
+  ['right',     '=', ':', 'COMPOUND_ASSIGN', 'RETURN', 'THROW', 'LOAD', 'EXTENDS']
   ['right',     'FORIN', 'FOROF', 'BY', 'WHEN']
   ['right',     'IF', 'ELSE', 'FOR', 'WHILE', 'UNTIL', 'LOOP', 'SUPER', 'CLASS']
   ['right',     'POST_IF']

@@ -1535,6 +1535,30 @@ exports.Throw = class Throw extends Base
   compileNode: (o) ->
     @tab + "throw #{ @expression.compile o };"
 
+#### Load
+
+# Require a rzr module
+exports.Load = class Load extends Base
+  constructor: (@expression) ->
+
+  children: ['expression']
+
+  isStatement: YES
+
+  rootDir: '../../'
+
+  compileNode: (o) ->
+
+    # should be:
+    # path = getModulePath(domainRoot, code)
+    code = @expression.compile o
+    qualifiedModule = eval(code).split '.'
+    module = qualifiedModule[0]
+    service = qualifiedModule[1]
+    path = "#{@rootDir}domain/#{module}/#{service}"
+
+    "require('#{ path }.js');"
+
 #### Existence
 
 # Checks a variable for existence -- not *null* and not *undefined*. This is
