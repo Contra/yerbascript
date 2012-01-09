@@ -5,6 +5,7 @@
 
 {Scope} = require './scope'
 {RESERVED} = require './lexer'
+#{projectRoot, support} = require './config'
 
 # Import the helpers we plan to use.
 {compact, flatten, extend, merge, del, starts, ends, last} = require './helpers'
@@ -1548,14 +1549,8 @@ exports.Load = class Load extends Base
   rootDir: '../../'
 
   compileNode: (o) ->
-
-    # should be:
-    # path = getModulePath(domainRoot, code)
     code = @expression.compile o
-    qualifiedModule = eval(code).split '.'
-    module = qualifiedModule[0]
-    service = qualifiedModule[1]
-    path = "#{@rootDir}domain/#{module}/#{service}"
+    path = support.getModulePath(domainRoot(), code)
 
     "require('#{ path }.js');"
 
