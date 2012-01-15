@@ -17,6 +17,9 @@
 # The only dependency is on the **Jison.Parser**.
 {Parser} = require 'jison'
 
+# just kidding, we require extensions too
+{macros} = require './extensions'
+
 # Jison DSL
 # ---------
 
@@ -98,7 +101,7 @@ grammar =
     o 'Switch'
     o 'Class'
     o 'Throw'
-    o 'Load'
+    o 'Macro'
   ]
 
   # An indented block of expressions. Note that the [Rewriter](rewriter.html)
@@ -390,9 +393,9 @@ grammar =
     o 'THROW Expression',                       -> new Throw $2
   ]
 
-  # Load a rzr module
-  Load: [
-    o 'LOAD Expression',                       -> new Load $2
+  # Convenience syntax for defining a macro
+  Macro: [
+    o 'MACRO Arguments',                        -> new Macro $2
   ]
 
   # Parenthetical expressions. Note that the **Parenthetical** is a **Value**,
@@ -548,6 +551,17 @@ grammar =
     o 'SimpleAssignable EXTENDS Expression',    -> new Extends $1, $3
   ]
 
+# extend grammar with user defined macros
+macroTokens = []
+if macros?
+  macroTokens = for m in macros
+    grammar.Expression.push m.className
+    grammar[m.className] = [
+      #o "#{m.tokenName} Arguments TERMINATOR",  -> new (eval "#{m.className}"), $2
+      eval "o('#{m.tokenName} Arguments TERMINATOR', function() {return new #{m.className}($2)} )"
+    ]
+
+    m.tokenName
 
 # Precedence
 # ----------
@@ -571,9 +585,11 @@ operators = [
   ['left',      'SHIFT']
   ['left',      'RELATION']
   ['left',      'COMPARE']
-  ['left',      'LOGIC']
+
+  # macros have precedence similar to functions
+  ['left',      'LOGIC', 'MACRO'].concat macroTokens...
   ['nonassoc',  'INDENT', 'OUTDENT']
-  ['right',     '=', ':', 'COMPOUND_ASSIGN', 'RETURN', 'THROW', 'LOAD', 'EXTENDS']
+  ['right',     '=', ':', 'COMPOUND_ASSIGN', 'RETURN', 'THROW', 'EXTENDS']
   ['right',     'FORIN', 'FOROF', 'BY', 'WHEN']
   ['right',     'IF', 'ELSE', 'FOR', 'WHILE', 'UNTIL', 'LOOP', 'SUPER', 'CLASS']
   ['right',     'POST_IF']

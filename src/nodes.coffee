@@ -5,7 +5,7 @@
 
 {Scope} = require './scope'
 {RESERVED} = require './lexer'
-#{projectRoot, support} = require './config'
+{macros} = require './extensions'
 
 # Import the helpers we plan to use.
 {compact, flatten, extend, merge, del, starts, ends, last} = require './helpers'
@@ -1536,23 +1536,40 @@ exports.Throw = class Throw extends Base
   compileNode: (o) ->
     @tab + "throw #{ @expression.compile o };"
 
-#### Load
+#### Macro
 
-# Require a rzr module
-exports.Load = class Load extends Base
-  constructor: (@expression) ->
+# Convenience syntax for defining a macro
+exports.Macro = class Macro extends Base
+  constructor: (@args) ->
 
-  children: ['expression']
-
-  isStatement: YES
-
-  rootDir: '../../'
+  children: ['args']
 
   compileNode: (o) ->
-    code = @expression.compile o
-    path = support.getModulePath(domainRoot(), code)
+    throw SyntaxError 'macro takes two arguments' unless @args.length == 2
 
-    "require('#{ path }.js');"
+    toCamel = (str) -> str.replace /^[a-z]/g, (firstChar) -> firstChar.toUpperCase()
+
+    name = eval @args[0].compile(o)
+    className = toCamel(name)
+    tokenName = name.toUpperCase
+    compileNodeFunction = @args[1].compile(o)
+
+    #how do I make this coffeescript?
+    """
+{
+  name: '#{name}',
+  className: '#{className}',
+  tokenName: '#{tokenName}',
+  classDef: function() {
+      __extends(#{className}, this.Macro);
+      function #{className}(expression) {
+        this.expression = expression;
+      }
+      #{className}.prototype.compileNode = #{compileNodeFunction}
+      return #{className};
+    }
+}
+    """
 
 #### Existence
 
@@ -1869,6 +1886,12 @@ Closure =
   literalThis: (node) ->
     (node instanceof Literal and node.value is 'this' and not node.asKey) or
       (node instanceof Code and node.bound)
+
+# extend nodes with defined macros
+if macros?
+  for m in macros
+    classDef = m.classDef.bind(exports)
+    exports[m.className] = classDef()
 
 # Unfold a node's child if soak, then tuck the node under created `If`
 unfoldSoak = (o, parent, name) ->

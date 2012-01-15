@@ -1,9 +1,8 @@
 # Config for RZR settings
 # --------------
-{findParent, projectRoot} = require '../lib/coffee-script/config'
+{findParent, projectRoot} = require '../lib/coffee-script/extensions'
 
 test "project root null", ->
-  console.log projectRoot()
   eq projectRoot(), null, "'#{projectRoot()}' should be null"
 
 test "project root current", ->
