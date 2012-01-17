@@ -7,14 +7,14 @@ CoffeeScript = require './coffee-script'
 # ============================================================
 root = null
 
-exports.findParent = findParent = (dir, pred) ->
+exports.findParent = findParent = (dir, predicate) ->
   return null if dir == '/'
 
-  if pred(dir)
+  if predicate(dir)
     return dir
   else
     upDir = normalize(dir + '/..')
-    return findParent(upDir, pred)
+    return findParent(upDir, predicate)
 
 rzrRootTest = (dir) ->
   'domain' in readdirSync(dir)
@@ -26,28 +26,41 @@ exports.projectRoot = projectRoot = () ->
 # ============================================================
 # load macros file if it exists
 # ============================================================
-appMacros = join projectRoot(), "macros.coffee"
+exports.macros = []
+appMacros = join projectRoot(), "macros.coffee" #/config
 if require.resolve appMacros
   #{macros} = require appMacros
 
   #exports.macros = macros
-  exports.macros = [
-    {
-      name: 'load'
-      className: 'Load'
-      tokenName: 'LOAD'
-      classDef: ->
-        class Load extends this.Macro
-          compileNode: (o) ->
-            code = @args[0].compile o
-            path = support.getModulePath(domainRoot(), code)
-            "require('#{ path }.js');"
-    }
-  ]
+  #exports.macros = [
+    #{
+      #name: 'load'
+      #className: 'Load'
+      #tokenName: 'LOAD'
+      #classDef: ->
+        #class Load extends this.Macro
+          #compileNode: (o) ->
+            #code = @args[0].compile o
+            #path = support.getModulePath(domainRoot(), code)
+            #"require('#{ path }.js');"
+    #}
+    #macro 'load', (o, args, projectRoot) ->
+      #throw SyntaxError 'load takes one argument' unless @args.length == 1
+      #{join} = require 'path'
+
+      #code = eval args[0].compile(o)
+      #domainRoot = join projectRoot, 'domain'
+      ##path = getModulePath(domainRoot, code)
+
+      #"require('#{ domainRoot }.js');"
+  #]
 
   names = m.name for m in exports.macros
-  console.log "found these macros: #{names}"
+  if names?
+    console.log "found these macros: #{names}"
+  else
+    console.log 'no macros found'
 
 else
-  console.log 'no macros found'
+    console.log 'project root not found'
 

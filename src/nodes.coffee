@@ -5,7 +5,7 @@
 
 {Scope} = require './scope'
 {RESERVED} = require './lexer'
-{macros} = require './extensions'
+{projectRoot, macros} = require './extensions'
 
 # Import the helpers we plan to use.
 {compact, flatten, extend, merge, del, starts, ends, last} = require './helpers'
@@ -1551,25 +1551,61 @@ exports.Macro = class Macro extends Base
 
     name = eval @args[0].compile(o)
     className = toCamel(name)
-    tokenName = name.toUpperCase
-    compileNodeFunction = @args[1].compile(o)
+    tokenName = name.toUpperCase()
+    compileNodeFunction = @args[1].compile o
 
-    #how do I make this coffeescript?
     """
 {
   name: '#{name}',
   className: '#{className}',
   tokenName: '#{tokenName}',
   classDef: function() {
-      __extends(#{className}, this.Macro);
-      function #{className}(expression) {
-        this.expression = expression;
+    var #{className};
+    return #{className} = (function(_super) {
+
+      __extends(#{className}, _super);
+
+      #{className}.name = '#{className}';
+
+      function #{className}() {
+        return #{className}.__super__.constructor.apply(this, arguments);
       }
-      #{className}.prototype.compileNode = #{compileNodeFunction}
+
+      #{className}.prototype.compileNode = #{compileNodeFunction};
+
       return #{className};
-    }
+
+    })(this.Macro);
+  }
 }
     """
+
+    # yay for unreadable trash
+    #assign = new Assign (new Literal 'compileNode'), compileNodeFunction, 'object'
+    #classBody = Block.wrap [(new Obj [assign])]
+    #functionBody = Block.wrap [(new Class (new Value className), this, classBody)]
+    #compileNode = new Code [], functionBody, '->'
+
+    # classDef will be defined in an application file but evaluated in context of this file
+    #"""
+    #{
+      #name: '#{name}',
+      #className: '#{className}',
+      #tokenName: '#{tokenName}',
+      #compileNode: #{compileNode.compile o}
+    #}
+    #"""
+    
+    #cs = require './coffee-script'
+
+    #cs.compile """
+    #{
+      #name: '#{name}',
+      #className: '#{className}',
+      #tokenName: '#{tokenName}',
+      #compileNode: `#{compileNodeFunction.compile o}`
+    #}""", {bare: true}
+
 
 #### Existence
 
@@ -1890,7 +1926,7 @@ Closure =
 # extend nodes with defined macros
 if macros?
   for m in macros
-    classDef = m.classDef.bind(exports)
+    classDef = m.classDef.bind(this)
     exports[m.className] = classDef()
 
 # Unfold a node's child if soak, then tuck the node under created `If`
