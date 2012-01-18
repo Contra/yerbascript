@@ -1,6 +1,7 @@
-CoffeeScript = require './coffee-script'
+{CoffeeScript} = require './coffee-script'
 {readdirSync} = require 'fs'
 {exists, normalize, join} = require 'path'
+
 
 # ============================================================
 # Find root project directory
@@ -31,31 +32,22 @@ appMacros = join projectRoot(), "macros.coffee" #/config
 if require.resolve appMacros
   #{macros} = require appMacros
 
-  #exports.macros = macros
-  #exports.macros = [
+  #exports.macros.push macros
+  #exports.macros.push [
     #{
-      #name: 'load'
-      #className: 'Load'
-      #tokenName: 'LOAD'
+      #name: 'foo'
+      #className: 'Foo'
+      #tokenName: 'FOO'
       #classDef: ->
-        #class Load extends this.Macro
+        #class Foo extends this.Macro
           #compileNode: (o) ->
             #code = @args[0].compile o
             #path = support.getModulePath(domainRoot(), code)
             #"require('#{ path }.js');"
     #}
-    #macro 'load', (o, args, projectRoot) ->
-      #throw SyntaxError 'load takes one argument' unless @args.length == 1
-      #{join} = require 'path'
+  #]...
 
-      #code = eval args[0].compile(o)
-      #domainRoot = join projectRoot, 'domain'
-      ##path = getModulePath(domainRoot, code)
-
-      #"require('#{ domainRoot }.js');"
-  #]
-
-  names = m.name for m in exports.macros
+  names = (m.name for m in exports.macros)
   if names?
     console.log "found these macros: #{names}"
   else
