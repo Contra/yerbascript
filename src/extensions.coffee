@@ -1,5 +1,7 @@
-{readFileSync, readdirSync} = require 'fs'
+{CoffeeScript} = require './coffee-script'
+{readdirSync} = require 'fs'
 {exists, normalize, join} = require 'path'
+
 
 # ============================================================
 # Find root project directory
