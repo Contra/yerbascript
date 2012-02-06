@@ -101,7 +101,6 @@ grammar =
     o 'Switch'
     o 'Class'
     o 'Throw'
-    o 'Macro'
   ]
 
   # An indented block of expressions. Note that the [Rewriter](rewriter.html)
@@ -393,11 +392,6 @@ grammar =
     o 'THROW Expression',                       -> new Throw $2
   ]
 
-  # Convenience syntax for defining a macro
-  Macro: [
-    o 'MACRO Arguments',                        -> new Macro $2
-  ]
-
   # Parenthetical expressions. Note that the **Parenthetical** is a **Value**,
   # not an **Expression**, so if you need to use an expression in a place
   # where only values are accepted, wrapping it in parentheses will always do
@@ -587,7 +581,7 @@ operators = [
   ['left',      'COMPARE']
 
   # macros have precedence similar to functions
-  ['left',      'LOGIC', 'MACRO'].concat macroTokens...
+  ['left',      'LOGIC'].concat macroTokens...
   ['nonassoc',  'INDENT', 'OUTDENT']
   ['right',     '=', ':', 'COMPOUND_ASSIGN', 'RETURN', 'THROW', 'EXTENDS']
   ['right',     'FORIN', 'FOROF', 'BY', 'WHEN']

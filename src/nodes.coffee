@@ -1538,74 +1538,11 @@ exports.Throw = class Throw extends Base
 
 #### Macro
 
-# Convenience syntax for defining a macro
+# Base class for macros
 exports.Macro = class Macro extends Base
   constructor: (@args) ->
 
   children: ['args']
-
-  compileNode: (o) ->
-    throw SyntaxError 'macro takes two arguments' unless @args.length == 2
-
-    toCamel = (str) -> str.replace /^[a-z]/g, (firstChar) -> firstChar.toUpperCase()
-
-    name = eval @args[0].compile(o)
-    className = toCamel(name)
-    tokenName = name.toUpperCase()
-    compileNodeFunction = @args[1].compile o
-
-    """
-{
-  name: '#{name}',
-  className: '#{className}',
-  tokenName: '#{tokenName}',
-  classDef: function() {
-    var #{className};
-    return #{className} = (function(_super) {
-
-      __extends(#{className}, _super);
-
-      #{className}.name = '#{className}';
-
-      function #{className}() {
-        return #{className}.__super__.constructor.apply(this, arguments);
-      }
-
-      #{className}.prototype.compileNode = #{compileNodeFunction};
-
-      return #{className};
-
-    })(this.Macro);
-  }
-}
-    """
-
-    # yay for unreadable trash
-    #assign = new Assign (new Literal 'compileNode'), compileNodeFunction, 'object'
-    #classBody = Block.wrap [(new Obj [assign])]
-    #functionBody = Block.wrap [(new Class (new Value className), this, classBody)]
-    #compileNode = new Code [], functionBody, '->'
-
-    # classDef will be defined in an application file but evaluated in context of this file
-    #"""
-    #{
-      #name: '#{name}',
-      #className: '#{className}',
-      #tokenName: '#{tokenName}',
-      #compileNode: #{compileNode.compile o}
-    #}
-    #"""
-    
-    #cs = require './coffee-script'
-
-    #cs.compile """
-    #{
-      #name: '#{name}',
-      #className: '#{className}',
-      #tokenName: '#{tokenName}',
-      #compileNode: `#{compileNodeFunction.compile o}`
-    #}""", {bare: true}
-
 
 #### Existence
 
