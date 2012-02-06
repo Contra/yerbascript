@@ -30,9 +30,7 @@
     "install": "cake build:parser"
   },
   "dependencies": {
-    "coffee-script": "*"
-  },
-  "devDependencies": {
+    "coffee-script": "*",
     "uglify-js":  ">=1.0.0",
     "jison":      ">=0.2.0"
   }
