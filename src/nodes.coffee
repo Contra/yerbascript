@@ -878,7 +878,7 @@ exports.Class = class Class extends Base
   # Merge the properties from a top-level object as prototypal properties
   # on the class.
   addProperties: (node, name, o) ->
-    props = node.base.properties[..]
+    props = node.base.properties[0..]
     exprs = while assign = props.shift()
       if assign instanceof Assign
         base = assign.variable.base

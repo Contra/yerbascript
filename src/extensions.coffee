@@ -1,6 +1,6 @@
-require 'coffee-script' # Give us the .coffee ext
 {readdirSync} = require 'fs'
 {normalize, existsSync, join, dirname} = require 'path'
+{Macro} = require './nodes'
 
 # ============================================================
 # Find root project directory aka folder with macros file
@@ -16,8 +16,7 @@ getMacros = (start, last) ->
       return
   # Try to require macros
   try
-    console.log join path, macroFile
-    return require join path, macroFile
+    return require.resolve normalize "#{start}/#{macroFile}"
   catch e
     return getMacros join(start, '..'), last
 
@@ -26,9 +25,12 @@ getMacros = (start, last) ->
 # ============================================================
 exports.macros = {}
 appMacros = getMacros()
-exports.projectRoot = dirname appMacros
+exports.projectRoot = projectRoot = dirname appMacros
 
-if projectRoot? and existsSync appMacros
+console.log "Macro file: #{appMacros}"
+console.log "Project root: #{projectRoot}"
+
+if appMacros? and projectRoot?
   {macros} = require appMacros
   toCamel = (str) -> str.replace /^[a-z]/g, (firstChar) -> firstChar.toUpperCase()
 
@@ -43,9 +45,4 @@ if projectRoot? and existsSync appMacros
 
   names = (name for name, def of exports.macros)
   if names.length > 0
-    console.log "found these macros: #{names}"
-  else
-    console.log 'no macros found'
-
-else
-    console.log 'project root not found: no macros loaded'
+    console.log "Macros loaded: #{names}"
