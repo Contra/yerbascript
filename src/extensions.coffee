@@ -36,7 +36,7 @@ if projectRoot? && path.existsSync appMacros
 
   for name, fn of macros
     className = toCamel(name)
-zzz
+
     exports.macros[name] =
       className: className
       tokenName: name.toUpperCase()

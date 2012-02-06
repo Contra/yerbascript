@@ -17,7 +17,11 @@ if require.extensions
   require.extensions['.coffee'] = (module, filename) ->
     content = compile fs.readFileSync(filename, 'utf8'), {filename}
     module._compile content, filename
+  require.extensions['.yerba'] = (module, filename) ->
+    content = compile fs.readFileSync(filename, 'utf8'), {filename}
+    module._compile content, filename
 else if require.registerExtension
+  require.registerExtension '.yerba', (content) -> compile content
   require.registerExtension '.coffee', (content) -> compile content
 
 # The current CoffeeScript version number.
