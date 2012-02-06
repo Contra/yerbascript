@@ -1,3 +1,4 @@
+require 'coffee-script' # Give us the .coffee ext
 {readdirSync} = require 'fs'
 {normalize, existsSync, join, dirname} = require 'path'
 
@@ -7,7 +8,6 @@
 getMacros = (start, last) ->
   macroFile = 'macros'
   start ?= process.cwd() # Start off wherever the process was started
-  console.log start
   if start is '/' or start is '\\' # we got all the way to root
     unless last # try starting from the yerba dir
       start = __dirname
@@ -16,6 +16,7 @@ getMacros = (start, last) ->
       return
   # Try to require macros
   try
+    console.log join path, macroFile
     return require join path, macroFile
   catch e
     return getMacros join(start, '..'), last
