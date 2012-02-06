@@ -43,7 +43,8 @@ if projectRoot? && path.existsSync appMacros
       classDef: eval(cs.compile """
           ->
             class #{className} extends this.Macro
-              compileNode: `#{fn}`
+              compileNode: (o) ->
+                ( `#{fn}` )(@args, compileContext: o, projectRoot: projectRoot())
         """, {bare: true})
 
   names = (name for name, def of exports.macros)

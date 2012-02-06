@@ -46,22 +46,29 @@
       [... more macro defs]
 
   Each macro is a key-value pair, the key being the name of the new macro, and the value being a compilation
-  function.  The compilation function is passed a context object which includes:
+  function.  The compilation function is passed args:
 
     args: These are the args that get passed to your macro.  Bear in mind, they have neither been compiled nor 
     evaluated yet.  You can compile them to a javascript string by calling `arg[n].compile compileContext`.  If
     you want, you can then eval that string.
+  
+  And context, an object comprised of:
 
     projectRoot: This is handy for doing relative requires.  Your compile function will be executed in the context
     of nodes.coffee inside the coffeescript internals, but using this it should be possible for you to rely on
     application or 3rd party code in your macro implimentations.
 
-    compileContext: Any time you call arg[n].compile you need to pass it this context.  This tells
+    compileContext: Any time you call arg[n].compile you need to pass it this value.  This tells
     the compiler what level of nesting you are at, whether the target phrase is part of an expression, and
-    other details.  If you're familiar with the Coffeescript source this is referred to there as 'o'.
+    other details.  This is referred to in the Coffeescript source as 'o'.
 
   When your compilation function is done, it should return a string.  This will become a part of the generated
   javascript file whenever your keyword is found within a coffee source.
+
+  Bear in mind, the grammar places no restrictions on the number of arguments a macro can accept, so if you
+  want to enforce this you could add something like this to your compile function:
+
+    throw SyntaxError 'foo takes one argument' unless args.length == 1
 
   Because this is a Jison based compiler, adding a new keyword will require a rebuild of the Yerbascript
   parser.  Fortunately any further changes you make to an existing keyword can be loaded on the fly.
