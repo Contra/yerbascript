@@ -1,51 +1,44 @@
-#notice, system installed coffee-script, not yerbascript
-cs = require 'coffee-script'
 {readdirSync} = require 'fs'
-path = require 'path'
+{normalize, existsSync, join, dirname} = require 'path'
 
 # ============================================================
-# Find root project directory
+# Find root project directory aka folder with macros file
 # ============================================================
-root = null
-
-exports.findParent = findParent = (dir, predicate) ->
-  return null if dir == '/'
-
-  if predicate(dir)
-    return dir
-  else
-    upDir = path.normalize(dir + '/..')
-    return findParent(upDir, predicate)
-
-rzrRootTest = (dir) ->
-  'domain' in readdirSync(dir)
-
-#try to find project root
-exports.projectRoot = projectRoot = () ->
-  root ?= findParent process.cwd(), rzrRootTest
+getMacros = (start, last) ->
+  macroFile = 'macros'
+  start ?= process.cwd() # Start off wherever the process was started
+  console.log start
+  if start is '/' or start is '\\' # we got all the way to root
+    unless last # try starting from the yerba dir
+      start = __dirname
+      last = true
+    else # already tried cwd and yerba dir, quit trying
+      return
+  # Try to require macros
+  try
+    return require join path, macroFile
+  catch e
+    return getMacros join(start, '..'), last
 
 # ============================================================
 # load macros file if it exists
 # ============================================================
 exports.macros = {}
-appMacros = path.join projectRoot(), "macros.coffee" #/config
+appMacros = getMacros()
+exports.projectRoot = dirname appMacros
 
-if projectRoot? && path.existsSync appMacros
+if projectRoot? and existsSync appMacros
   {macros} = require appMacros
   toCamel = (str) -> str.replace /^[a-z]/g, (firstChar) -> firstChar.toUpperCase()
 
   for name, fn of macros
-    className = toCamel(name)
+    clazz = new Macro
+    clazz.compileNode = (o) => fn @args, compileContext: o, projectRoot: projectRoot
 
     exports.macros[name] =
-      className: className
+      className: toCamel name
       tokenName: name.toUpperCase()
-      classDef: eval(cs.compile """
-          ->
-            class #{className} extends this.Macro
-              compileNode: (o) ->
-                ( `#{fn}` )(@args, compileContext: o, projectRoot: projectRoot())
-        """, {bare: true})
+      classDef: clazz
 
   names = (name for name, def of exports.macros)
   if names.length > 0

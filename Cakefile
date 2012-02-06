@@ -1,7 +1,7 @@
 fs            = require 'fs'
 path          = require 'path'
-{extend}      = require './lib/coffee-script/helpers'
-CoffeeScript  = require './lib/coffee-script'
+{extend}      = require './src/helpers'
+CoffeeScript  = require 'coffee-script'
 {spawn, exec} = require 'child_process'
 
 # ANSI Terminal Colors.
@@ -34,7 +34,7 @@ sources = [
 
 # Run a CoffeeScript through our node/coffee interpreter.
 run = (args, cb) ->
-  proc =         spawn 'bin/coffee', args
+  proc =         spawn 'coffee', args
   proc.stderr.on 'data', (buffer) -> console.log buffer.toString()
   proc.on        'exit', (status) ->
     process.exit(1) if status != 0
@@ -75,7 +75,7 @@ task 'build', 'build the CoffeeScript language from source', build = (cb) ->
 task 'build:full', 'rebuild the source twice, and run the tests', ->
   build ->
     build ->
-      csPath = './lib/coffee-script'
+      csPath = 'coffee-script'
       delete require.cache[require.resolve csPath]
       unless runTests require csPath
         process.exit 1
@@ -84,7 +84,7 @@ task 'build:full', 'rebuild the source twice, and run the tests', ->
 task 'build:parser', 'rebuild the Jison parser (run build first)', ->
   extend global, require('util')
   require 'jison'
-  {parser} = require('./lib/coffee-script/grammar')
+  {parser} = require('./src/grammar')
   fs.writeFile 'lib/coffee-script/parser.js', parser.generate()
 
 
@@ -113,8 +113,8 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
 
       if (typeof define === 'function' && define.amd) {
         define(function() { return CoffeeScript; });
-      } else { 
-        root.CoffeeScript = CoffeeScript; 
+      } else {
+        root.CoffeeScript = CoffeeScript;
       }
     }(this));
   """
@@ -141,7 +141,7 @@ task 'doc:underscore', 'rebuild the Underscore.coffee documentation page', ->
     throw err if err
 
 task 'bench', 'quick benchmark of compilation time', ->
-  {Rewriter} = require './lib/coffee-script/rewriter'
+  {Rewriter} = require './src/rewriter'
   co     = sources.map((name) -> fs.readFileSync name).join '\n'
   fmt    = (ms) -> " #{bold}#{ "   #{ms}".slice -4 }#{reset} ms"
   total  = 0

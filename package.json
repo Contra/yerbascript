@@ -1,12 +1,14 @@
 {
-  "name":         "coffee-script",
-  "description":  "Unfancy JavaScript",
-  "keywords":     ["javascript", "language", "coffeescript", "compiler"],
+  "name":         "yerbascript",
+  "description":  "Unfancy CoffeeScript",
+  "keywords":     ["javascript", "language", "yerbacript", "compiler", "macros"],
   "author":       "Jeremy Ashkenas",
-  "version":      "1.2.1-pre",
+  "version":      "0.0.1",
+  "preferGlobal": true,
+
   "licenses":     [{
     "type":       "MIT",
-    "url":        "http://github.com/jashkenas/coffee-script/raw/master/LICENSE"
+    "url":        "http://github.com/wearefractal/yerbascript/raw/master/LICENSE"
   }],
   "engines":      {
     "node":       ">=0.4.0"
@@ -16,13 +18,19 @@
   },
   "main" : "./lib/coffee-script/coffee-script",
   "bin":          {
-    "coffee":     "./bin/coffee",
-    "cake":       "./bin/cake"
+    "yerba":     "./bin/yerba",
+    "yake":      "./bin/yake"
   },
-  "homepage":     "http://coffeescript.org",
+  "homepage":     "http://yerbascript.org",
   "repository":   {
     "type": "git",
-    "url": "git://github.com/jashkenas/coffee-script.git"
+    "url": "git://github.com/wearefractal/yerbascript.git"
+  },
+  "install": {
+    "install": "cake build:parser"
+  },
+  "dependencies": {
+    "coffee-script": "*"
   },
   "devDependencies": {
     "uglify-js":  ">=1.0.0",

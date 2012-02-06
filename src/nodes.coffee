@@ -5,7 +5,7 @@
 
 {Scope} = require './scope'
 {RESERVED} = require './lexer'
-{projectRoot, macros} = require './extensions'
+{macros} = require './extensions'
 
 # Import the helpers we plan to use.
 {compact, flatten, extend, merge, del, starts, ends, last} = require './helpers'
