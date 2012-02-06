@@ -41,7 +41,7 @@
 
     export.macros =
       getSymbolName: (context) ->
-        context.args[0]
+        "some output js"
 
       [... more macro defs]
 
