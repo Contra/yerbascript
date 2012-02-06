@@ -1,12 +1,12 @@
 
-            {
-         }   }   {
-        {   {  }  }
+            *    *
+          *  }   {
+        {   {  }  } 
          }   }{  {
-        {  }{  }  }                    _____       __  __
-       ( }{ }{  { )                   / ____|     / _|/ _|
+        {  *{  }  } *                  _____       __  __
+       * }{ }{  * )                   / ____|     / _|/ _|
      .- { { }  { }} -.               | |     ___ | |_| |_ ___  ___
-    (  ( } { } { } }  )              | |    / _ \|  _|  _/ _ \/ _ \
+    (  ( } { } { } }  )          --------------------------------------   yerba!
     |`-..________ ..-'|              | |___| (_) | | | ||  __/  __/
     |                 |               \_____\___/|_| |_| \___|\___|
     |                 ;--.
@@ -19,6 +19,60 @@
      `-.._________..-'                                  | |
                                                         |_|
 
+
+  Yerbascript is an extension of CoffeeScript which allows for syntax extensions (macros).
+
+  This can be used to perform expensive evaluations at compile time, or to create your own keywords
+  which can define variables and/or operate on symbols.
+
+  In order to simplify the implimentation and definition of macros, the grammar is standardized to
+  that of a function.  So the calling form is:
+
+    myMacro [arg1, arg2, ...]
+
+  Perens are optional, just like a coffeescript function. This disallows definition of infix operators,
+  so if you want to do that you are welcome to fork.  :-)
+
+  By convention Yerbascript looks for definitions in a macros.coffee file in your project root.  Currently
+  the mechanism for finding the project root is specific to the RZR framework, but in the future it should
+  be possible to define a predicate specific to whatever structure you prefer for your project.
+
+  The macros.coffee file should look like this:
+
+    export.macros =
+      getSymbolName: (context) ->
+        context.args[0]
+
+      [... more macro defs]
+
+  Each macro is a key-value pair, the key being the name of the new macro, and the value being a compilation
+  function.  The compilation function is passed a context object which includes:
+
+    args: These are the args that get passed to your macro.  Bear in mind, they have neither been compiled nor 
+    evaluated yet.  You can compile them to a javascript string by calling `arg[n].compile compileContext`.  If
+    you want, you can then eval that string.
+
+    projectRoot: This is handy for doing relative requires.  Your compile function will be executed in the context
+    of nodes.coffee inside the coffeescript internals, but using this it should be possible for you to rely on
+    application or 3rd party code in your macro implimentations.
+
+    compileContext: Any time you call arg[n].compile you need to pass it this context.  This tells
+    the compiler what level of nesting you are at, whether the target phrase is part of an expression, and
+    other details.  If you're familiar with the Coffeescript source this is referred to there as 'o'.
+
+  When your compilation function is done, it should return a string.  This will become a part of the generated
+  javascript file whenever your keyword is found within a coffee source.
+
+  Because this is a Jison based compiler, adding a new keyword will require a rebuild of the Yerbascript
+  parser.  Fortunately any further changes you make to an existing keyword can be loaded on the fly.
+
+  To build the parser just type:
+
+    cake build:parser
+
+  Happy hacking!
+
+  ---------
 
   CoffeeScript is a little language that compiles into JavaScript.
 
