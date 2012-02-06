@@ -1,7 +1,7 @@
-{CoffeeScript} = require './coffee-script'
+#notice, system installed coffee-script, not yerbascript
+cs = require 'coffee-script'
 {readdirSync} = require 'fs'
-{exists, normalize, join} = require 'path'
-
+path = require 'path'
 
 # ============================================================
 # Find root project directory
@@ -14,7 +14,7 @@ exports.findParent = findParent = (dir, predicate) ->
   if predicate(dir)
     return dir
   else
-    upDir = normalize(dir + '/..')
+    upDir = path.normalize(dir + '/..')
     return findParent(upDir, predicate)
 
 rzrRootTest = (dir) ->
@@ -27,32 +27,30 @@ exports.projectRoot = projectRoot = () ->
 # ============================================================
 # load macros file if it exists
 # ============================================================
-exports.macros = []
-appMacros = join projectRoot(), "macros.coffee" #/config
-if require.resolve appMacros
-  #{macros} = require appMacros
+exports.macros = {}
+appMacros = path.join projectRoot(), "macros.coffee" #/config
 
-  #exports.macros.push macros
-  #exports.macros.push [
-    #{
-      #name: 'foo'
-      #className: 'Foo'
-      #tokenName: 'FOO'
-      #classDef: ->
-        #class Foo extends this.Macro
-          #compileNode: (o) ->
-            #code = @args[0].compile o
-            #path = support.getModulePath(domainRoot(), code)
-            #"require('#{ path }.js');"
-    #}
-  #]...
+if projectRoot? && path.existsSync appMacros
+  {macros} = require appMacros
+  toCamel = (str) -> str.replace /^[a-z]/g, (firstChar) -> firstChar.toUpperCase()
 
-  names = (m.name for m in exports.macros)
-  if names?
+  for name, fn of macros
+    className = toCamel(name)
+
+    exports.macros[name] =
+      className: className
+      tokenName: name.toUpperCase()
+      classDef: eval(cs.compile """
+          ->
+            class #{className} extends this.Macro
+              compileNode: `#{fn}`
+        """, {bare: true})
+
+  names = (name for name, def of exports.macros)
+  if names.length > 0
     console.log "found these macros: #{names}"
   else
     console.log 'no macros found'
 
 else
-    console.log 'project root not found'
-
+    console.log 'project root not found: no macros loaded'

@@ -1925,9 +1925,9 @@ Closure =
 
 # extend nodes with defined macros
 if macros?
-  for m in macros
-    classDef = m.classDef.bind(this)
-    exports[m.className] = classDef()
+  for name, def of macros
+    classDef = def.classDef.bind(this)
+    exports[def.className] = classDef()
 
 # Unfold a node's child if soak, then tuck the node under created `If`
 unfoldSoak = (o, parent, name) ->

@@ -554,14 +554,14 @@ grammar =
 # extend grammar with user defined macros
 macroTokens = []
 if macros?
-  macroTokens = for m in macros
-    grammar.Expression.push m.className
-    grammar[m.className] = [
-      #o "#{m.tokenName} Arguments TERMINATOR",  -> new (eval "#{m.className}"), $2
-      eval "o('#{m.tokenName} Arguments TERMINATOR', function() {return new #{m.className}($2)} )"
+  macroTokens = for name, def of macros
+    grammar.Expression.push def.className
+    grammar[def.className] = [
+      #o "#{def.tokenName} Arguments TERMINATOR",  -> new (eval "#{def.className}"), $2
+      eval "o('#{def.tokenName} Arguments TERMINATOR', function() {return new #{def.className}($2)} )"
     ]
 
-    m.tokenName
+    def.tokenName
 
 # Precedence
 # ----------

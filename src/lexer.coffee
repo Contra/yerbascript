@@ -550,7 +550,7 @@ JS_KEYWORDS = [
 # CoffeeScript-only keywords.
 COFFEE_KEYWORDS = ['undefined', 'then', 'unless', 'until', 'loop', 'of', 'by', 'when', 'macro']
 if macros?
-  COFFEE_KEYWORDS.push m.name for m in macros
+  COFFEE_KEYWORDS.push name for name, def of macros
 
 COFFEE_ALIAS_MAP =
   and  : '&&'
@@ -690,7 +690,7 @@ NOT_SPACED_REGEX = NOT_REGEX.concat ')', '}', 'THIS', 'IDENTIFIER', 'STRING'
 # of a function invocation or indexing operation.
 CALLABLE  = ['IDENTIFIER', 'STRING', 'REGEX', ')', ']', '}', '?', '::', '@', 'THIS', 'SUPER', 'MACRO']
 if macros?
-  CALLABLE.push m.tokenName for m in macros
+  CALLABLE.push def.tokenName for name, def of macros
 
 INDEXABLE = CALLABLE.concat 'NUMBER', 'BOOL'
 
